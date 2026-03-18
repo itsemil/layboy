@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gopfert Layboy Settings App</title>
+    <style>
+        :root {
+            --gopfert-green: #2c7247;
+            --bg-gray: #d9dbde;
+            --panel-gray: #c5c8cc;
+            --border-gray: #9ba0a6;
+            --text-dark: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+        
+        /* Top Header Area */
+        .header { display: flex; background: #fff; padding: 15px; border: 1px solid var(--border-gray); border-radius: 4px; margin-bottom: 20px; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header-group { display: flex; flex-direction: column; }
+        .header-group label { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; }
+        .header-group input, .header-group select { border: 1px solid var(--border-gray); padding: 5px; font-size: 16px; background: #f4f5f7; border-radius: 3px; }
+        .header-group input[readonly] { background: #e2e4e7; color: #666; cursor: not-allowed; border-style: dashed; font-size: 14px; }
+        
+        /* Main Application Layout */
+        .app-container { display: flex; gap: 20px; min-height: 70vh; }
+
+        /* Left Navigation Menu */
+        .nav-panel { flex: 0 0 250px; display: flex; flex-direction: column; gap: 10px; background: var(--panel-gray); padding: 10px; border: 1px solid var(--border-gray); border-radius: 4px; }
+        .nav-btn { background: #e2e4e7; border: 1px solid var(--border-gray); padding: 15px; cursor: pointer; text-align: left; font-weight: bold; font-size: 12px; text-transform: uppercase; border-radius: 3px; box-shadow: inset 1px 1px 0 #fff, 1px 1px 2px rgba(0,0,0,0.2); transition: all 0.1s; }
+        .nav-btn.active { background: var(--gopfert-green); color: white; box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3); border-color: #1c4d2f; }
+        .nav-btn.overview-btn { background: #4a5568; color: white; margin-bottom: 15px; }
+        .nav-btn.overview-btn.active { background: #2d3748; }
+        .nav-split { display: flex; gap: 10px; }
+        .nav-split .nav-btn { flex: 1; }
+
+        /* Right Content Area */
+        .content-panel { flex: 1; background: var(--panel-gray); border: 1px solid var(--border-gray); border-radius: 4px; padding: 20px; position: relative; overflow-y: auto; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-title { text-transform: uppercase; font-size: 14px; color: #555; margin-bottom: 20px; border-bottom: 1px solid var(--border-gray); padding-bottom: 5px; font-weight: bold; }
+
+        /* Input rows mapping to HMI inputs */
+        .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #d1d4d8; padding: 10px; border-radius: 4px; border: 1px solid #bcbfc4; }
+        .input-row label { font-size: 14px; font-weight: 500; }
+        .input-row input, .input-row select { width: 90px; padding: 8px; text-align: right; border: 1px solid var(--border-gray); border-radius: 3px; }
+
+        /* Belt Inputs Specific CSS */
+        .belt-input { width: 50px !important; padding: 5px; text-align: center; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 13px; background: #fff; }
+        .belt-label { font-size: 12px; font-weight: bold; color: #333; margin-bottom: 5px; text-align: center; }
+        .g2-only { display: none; } 
+
+        /* Action Buttons */
+        .action-bar { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-gray); padding-top: 15px; }
+        .btn { padding: 10px 20px; font-weight: bold; border: 1px solid var(--border-gray); border-radius: 4px; cursor: pointer; }
+        .btn-save { background: var(--gopfert-green); color: white; }
+        .btn-load { background: #fff; }
+
+        /* Visual HMI Overview Dashboard CSS */
+        .hmi-container { width: 100%; max-width: 900px; background-color: #c9d1db; border: 2px solid #a0aab5; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: 0 auto; }
+        .hmi-header { background-color: var(--gopfert-green); color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 18px; letter-spacing: 1px; }
+        .belts-section { background-color: #d1d8e0; border-bottom: 2px solid #a0aab5; padding: 15px; text-align: center; }
+        .belts-title { font-size: 12px; color: #555; margin-bottom: 15px; text-transform: uppercase; font-weight: bold; }
+        .belts-grid { display: flex; justify-content: space-around; align-items: center; }
+        .belt-column { display: flex; flex-direction: column; align-items: center; font-size: 14px; transition: all 0.3s ease; }
+        .belt-divider { height: 60px; width: 4px; background-color: #555; margin: 5px 0; }
+        .belt-divider.dashed { background: repeating-linear-gradient(to bottom, #555, #555 10px, transparent 10px, transparent 20px); }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(100px, auto); }
+        .card { border: 1px solid #a0aab5; padding: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #c9d1db; cursor: pointer; transition: background-color 0.2s; }
+        .card:hover { background-color: #b8c2cc; }
+        .card-content { display: flex; flex-direction: column; }
+        .card-title { font-size: 12px; color: #555; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
+        .value { font-size: 16px; margin-bottom: 5px; font-weight: bold; }
+        .values-right { text-align: right; display: flex; flex-direction: column; }
+        .icon-placeholder { width: 80px; height: 50px; border: 2px dashed #888; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-group">
+            <label>Die Number</label>
+            <input type="text" id="dieNumber" placeholder="e.g. HGD10144">
+        </div>
+        <div class="header-group">
+            <label>Date Uploaded</label>
+            <input type="text" id="runDate" placeholder="Auto-stamped on save" readonly>
+        </div>
+        <div class="header-group">
+            <label>Board Warp</label>
+            <select id="boardWarp">
+                <option value="Flat">Flat</option>
+                <option value="Warp down">Warp down</option>
+                <option value="Warp up">Warp up</option>
+                <option value="Slight Down">Slight Down</option>
+            </select>
+        </div>
+        <div class="header-group">
+            <label>Machine</label>
+            <select id="machine" onchange="window.toggleG2Belts()">
+                <option value="G1">G1</option>
+                <option value="G2">G2</option>
+                <option value="G3">G3</option>
+            </select>
+        </div>
+        <div class="header-group">
+            <label>Running Speed</label>
+            <input type="number" id="runSpeed" placeholder="e.g. 6000">
+        </div>
+    </div>
+
+    <div class="app-container">
+        
+        <div class="nav-panel">
+            <button class="nav-btn overview-btn active" onclick="window.showPage('overview', this)">HMI Overview</button>
+            <button class="nav-btn" onclick="window.showPage('page1', this)">Position of Belts</button>
+            <div class="nav-split">
+                <button class="nav-btn" onclick="window.showPage('page2', this)">Caliber</button>
+                <button class="nav-btn" onclick="window.showPage('page3', this)">Waste Disp.</button>
+            </div>
+            <div class="nav-split">
+                <button class="nav-btn" onclick="window.showPage('page4', this)">Undercarr.</button>
+                <button class="nav-btn" onclick="window.showPage('page5', this)">Speed</button>
+            </div>
+            <button class="nav-btn" onclick="window.showPage('page6', this)">Brush</button>
+        </div>
+
+        <div class="content-panel">
+            
+            <div id="overview" class="page active">
+                <div class="hmi-container">
+                    <div class="hmi-header">Layboy Settings Overview</div>
+                    
+                    <div class="belts-section" onclick="window.showPage('page1', document.querySelector('.nav-btn:nth-child(2)'))" style="cursor: pointer;">
+                        <div class="belts-title">Position of Layboy Belts</div>
+                        <div class="belts-grid">
+                            <div class="belt-column g2-only"><div style="color:var(--gopfert-green); font-weight:bold;">5L</div><div id="ov_5L_top">--</div><div class="belt-divider"></div><div id="ov_5L_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_4L_top">--</div><div class="belt-divider"></div><div id="ov_4L_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_3L_top">--</div><div class="belt-divider"></div><div id="ov_3L_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_2L_top">--</div><div class="belt-divider"></div><div id="ov_2L_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_1L_top">--</div><div class="belt-divider"></div><div id="ov_1L_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div class="belt-divider dashed"></div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_1R_top">--</div><div class="belt-divider"></div><div id="ov_1R_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_2R_top">--</div><div class="belt-divider"></div><div id="ov_2R_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_3R_top">--</div><div class="belt-divider"></div><div id="ov_3R_bot">--</div></div>
+                            <div class="belt-column"><div><br></div><div id="ov_4R_top">--</div><div class="belt-divider"></div><div id="ov_4R_bot">--</div></div>
+                            <div class="belt-column g2-only"><div style="color:var(--gopfert-green); font-weight:bold;">5R</div><div id="ov_5R_top">--</div><div class="belt-divider"></div><div id="ov_5R_bot">--</div></div>
+                        </div>
+                    </div>
+            
+                    <div class="main-grid">
+                        <div class="card" onclick="window.showPage('page2', document.querySelector('.nav-btn:nth-child(3) .nav-btn:first-child'))">
+                            <div class="card-content"><div class="card-title">Caliber</div><div class="value" id="ov_caliberArms">-- mm</div><div class="value" id="ov_caliberBeater">-- mm</div></div>
+                            <div class="icon-placeholder">Icon</div>
+                        </div>
+                        <div class="card" onclick="window.showPage('page3', document.querySelector('.nav-btn:nth-child(3) .nav-btn:last-child'))">
+                            <div class="card-content"><div class="card-title">Waste Disposal</div><div class="icon-placeholder" style="width: 50px;">Icon</div></div>
+                            <div class="values-right"><div class="value" id="ov_beaterIntensity">--</div><div class="value" id="ov_airBlastIn">--</div><div class="value" id="ov_airBlastOut">--</div></div>
+                        </div>
+                        <div class="card" onclick="window.showPage('page4', document.querySelector('.nav-btn:nth-child(4) .nav-btn:first-child'))">
+                            <div class="card-content"><div class="card-title">Undercarriage</div><div class="value" id="ov_unitFwdBack">-- mm</div><div class="value" id="ov_posSwivel">-- mm</div><div class="value" id="ov_unitUpDown">-- mm</div></div>
+                            <div class="icon-placeholder">Icon</div>
+                        </div>
+                        <div class="card" onclick="window.showPage('page5', document.querySelector('.nav-btn:nth-child(4) .nav-btn:last-child'))">
+                            <div class="card-content"><div class="card-title">Speed</div><div class="value" id="ov_speedOffset">-- %</div></div>
+                            <div class="icon-placeholder">Icon</div>
+                        </div>
+                        <div class="card" onclick="window.showPage('page6', document.querySelector('.nav-btn:nth-child(5)'))">
+                            <div class="card-content"><div class="card-title">Brush</div><div class="value" id="ov_brushTop">-- mm</div><div class="value" id="ov_brushBottom">-- mm</div></div>
+                            <div class="icon-placeholder" style="visibility: hidden;">Icon</div>
+                        </div>
+                        <div class="card" style="cursor: default;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page1" class="page">
+                <div class="page-title">Position of Layboy Belts</div>
+                <div class="belts-section" style="border: 1px solid var(--border-gray); background: #d1d4d8; border-radius: 4px;">
+                    <div class="belts-grid">
+                        <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5L</div><input type="number" class="belt-input" id="in_5L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5L_bot"></div>
+                        <div class="belt-column"><div class="belt-label">4L</div><input type="number" class="belt-input" id="in_4L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4L_bot"></div>
+                        <div class="belt-column"><div class="belt-label">3L</div><input type="number" class="belt-input" id="in_3L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_3L_bot"></div>
+                        <div class="belt-column"><div class="belt-label">2L</div><input type="number" class="belt-input" id="in_2L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2L_bot"></div>
+                        <div class="belt-column"><div class="belt-label">1L</div><input type="number" class="belt-input" id="in_1L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1L_bot"></div>
+                        <div class="belt-column"><div class="belt-label"><br></div><div class="belt-divider dashed"></div></div>
+                        <div class="belt-column"><div class="belt-label">1R</div><input type="number" class="belt-input" id="in_1R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1R_bot"></div>
+                        <div class="belt-column"><div class="belt-label">2R</div><input type="number" class="belt-input" id="in_2R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2R_bot"></div>
+                        <div class="belt-column"><div class="belt-label">3R</div><input type="number" class="belt-input" id="in_3R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_3R_bot"></div>
+                        <div class="belt-column"><div class="belt-label">4R</div><input type="number" class="belt-input" id="in_4R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4R_bot"></div>
+                        <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5R</div><input type="number" class="belt-input" id="in_5R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5R_bot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page2" class="page">
+                <div class="page-title">Caliber</div>
+                <div class="input-row"><label>Caliber layboy arms (mm)</label><input type="number" step="0.1" id="caliberArms"></div>
+                <div class="input-row"><label>Caliber beater (mm)</label><input type="number" step="0.1" id="caliberBeater"></div>
+            </div>
+
+            <div id="page3" class="page">
+                <div class="page-title">Waste Disposal</div>
+                <div class="input-row"><label>Beater intensity</label><input type="number" id="beaterIntensity"></div>
+                <div class="input-row"><label>Rotation direction beater</label>
+                    <select id="rotationDirection"><option value="Forwards">Forwards</option><option value="Backwards">Backwards</option></select>
+                </div>
+                <div class="input-row"><label>Air blast power infeed side</label><input type="number" id="airBlastIn"></div>
+                <div class="input-row"><label>Air blast power outfeed side</label><input type="number" id="airBlastOut"></div>
+            </div>
+
+            <div id="page4" class="page">
+                <div class="page-title">Undercarriage</div>
+                <div class="input-row"><label>Unit forward / back (mm)</label><input type="number" id="unitFwdBack"></div>
+                <div class="input-row"><label>Position swivel conveyor (mm)</label><input type="number" id="posSwivel"></div>
+                <div class="input-row"><label>Unit up/down (mm)</label><input type="number" id="unitUpDown"></div>
+            </div>
+
+            <div id="page5" class="page">
+                <div class="page-title">Speed</div>
+                <div class="input-row"><label>Offset (%)</label><input type="number" step="0.1" id="speedOffset"></div>
+            </div>
+
+            <div id="page6" class="page">
+                <div class="page-title">Brush</div>
+                <div class="input-row"><label>Flat brushes top (mm)</label><input type="number" step="0.1" id="brushTop"></div>
+                <div class="input-row"><label>Flat brushes bottom (mm)</label><input type="number" step="0.1" id="brushBottom"></div>
+            </div>
+            
+            <div class="action-bar">
+                <button class="btn btn-load" onclick="window.loadSettings()">Load Saved Settings</button>
+                <button class="btn btn-save" onclick="window.saveSettings()">Save to Database</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJ7TAvwSGEsfilzNFb1ZKJonoa8CK4h-k",
+            authDomain: "layboy-796bc.firebaseapp.com",
+            projectId: "layboy-796bc",
+            storageBucket: "layboy-796bc.firebasestorage.app",
+            messagingSenderId: "172840946320",
+            appId: "1:172840946320:web:c33ae180725214ed1ae615"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Arrays to make gathering data easier
+        const textFields = ['boardWarp', 'machine', 'runSpeed', 'caliberArms', 'caliberBeater', 'beaterIntensity', 'rotationDirection', 'airBlastIn', 'airBlastOut', 'unitFwdBack', 'posSwivel', 'unitUpDown', 'speedOffset', 'brushTop', 'brushBottom'];
+        const beltFields = ['5L_top', '5L_bot', '4L_top', '4L_bot', '3L_top', '3L_bot', '2L_top', '2L_bot', '1L_top', '1L_bot', '1R_top', '1R_bot', '2R_top', '2R_bot', '3R_top', '3R_bot', '4R_top', '4R_bot', '5R_top', '5R_bot'];
+
+        // Expose functions globally for the HTML buttons
+        window.saveSettings = async function() {
+            const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
+            if (!dieNum) {
+                alert("Please enter a Die Number before saving!");
+                return;
+            }
+
+            // Create timestamp
+            const timestamp = new Date().toLocaleString('en-GB');
+
+            // Gather Data
+            let data = { runDate: timestamp };
+            textFields.forEach(f => data[f] = document.getElementById(f).value);
+            beltFields.forEach(b => data['in_' + b] = document.getElementById('in_' + b).value);
+
+            try {
+                // Save to Firestore Database
+                await setDoc(doc(db, "layboySettings", dieNum), data);
+                document.getElementById('runDate').value = timestamp;
+                window.updateOverview(data); // Push new numbers to the visual grid
+                alert("Settings successfully saved to database!");
+            } catch (e) {
+                console.error("Error saving document: ", e);
+                alert("Error saving settings. Check console.");
+            }
+        };
+
+        window.loadSettings = async function() {
+            const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
+            if (!dieNum) {
+                alert("Please enter a Die Number to search for!");
+                return;
+            }
+
+            try {
+                const docSnap = await getDoc(doc(db, "layboySettings", dieNum));
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    
+                    // Populate Header
+                    document.getElementById('runDate').value = d.runDate || '';
+                    
+                    // Populate Inputs
+                    textFields.forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = d[f] || ''; });
+                    beltFields.forEach(b => { if(document.getElementById('in_' + b)) document.getElementById('in_' + b).value = d['in_' + b] || ''; });
+                    
+                    // Refresh UI
+                    window.toggleG2Belts();
+                    window.updateOverview(d);
+                    alert("Settings Loaded Successfully!");
+                } else {
+                    alert("No saved settings found for Die: " + dieNum);
+                }
+            } catch (e) {
+                console.error("Error loading document:", e);
+            }
+        };
+
+        window.updateOverview = function(d) {
+            // Update Belts
+            beltFields.forEach(b => { 
+                let el = document.getElementById('ov_' + b);
+                if(el) el.innerText = d['in_' + b] || '--'; 
+            });
+            // Update Cards
+            document.getElementById('ov_caliberArms').innerText = (d.caliberArms || '--') + ' mm';
+            document.getElementById('ov_caliberBeater').innerText = (d.caliberBeater || '--') + ' mm';
+            document.getElementById('ov_beaterIntensity').innerText = d.beaterIntensity || '--';
+            document.getElementById('ov_airBlastIn').innerText = d.airBlastIn || '--';
+            document.getElementById('ov_airBlastOut').innerText = d.airBlastOut || '--';
+            document.getElementById('ov_unitFwdBack').innerText = (d.unitFwdBack || '--') + ' mm';
+            document.getElementById('ov_posSwivel').innerText = (d.posSwivel || '--') + ' mm';
+            document.getElementById('ov_unitUpDown').innerText = (d.unitUpDown || '--') + ' mm';
+            document.getElementById('ov_speedOffset').innerText = (d.speedOffset || '--') + ' %';
+            document.getElementById('ov_brushTop').innerText = (d.brushTop || '--') + ' mm';
+            document.getElementById('ov_brushBottom').innerText = (d.brushBottom || '--') + ' mm';
+        };
+
+        // UI Functions
+        window.showPage = function(pageId, btnElement) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
+        };
+
+        window.toggleG2Belts = function() {
+            const machineSelected = document.getElementById('machine').value;
+            document.querySelectorAll('.g2-only').forEach(el => {
+                el.style.display = (machineSelected === 'G2') ? 'flex' : 'none';
+            });
+        };
+
+        // Init UI
+        window.toggleG2Belts();
+    </script>
+</body>
+</html>
