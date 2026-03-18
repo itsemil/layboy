@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gopfert Layboy Settings App</title>
     <style>
         :root {
@@ -16,16 +16,54 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-gray);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             color: var(--text-dark);
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Top Header Area */
-        .header { display: flex; background: #fff; padding: 15px; border: 1px solid var(--border-gray); border-radius: 4px; margin-bottom: 20px; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header-group { display: flex; flex-direction: column; }
-        .header-group label { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; }
-        .header-group input, .header-group select { border: 1px solid var(--border-gray); padding: 5px; font-size: 16px; background: #f4f5f7; border-radius: 3px; }
-        .header-group input[readonly] { background: #e2e4e7; color: #666; cursor: not-allowed; border-style: dashed; font-size: 14px; }
+        /* Top Header Area (Inputs) */
+        .header {
+            display: flex;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            margin: 0 5px;
+        }
+        .header-group:first-child { margin-left: 0; }
+        .header-group:last-child { margin-right: 0; }
+        
+        .header-group label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .header-group input, .header-group select {
+            border: 1px solid var(--border-gray);
+            padding: 8px 5px;
+            font-size: 16px;
+            background: #f4f5f7;
+            border-radius: 3px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .header-group input[readonly] {
+            background: #e2e4e7;
+            color: #666;
+            cursor: not-allowed;
+            border-style: dashed;
+            font-size: 14px;
+        }
         
         /* Main Application Layout */
         .app-container { display: flex; gap: 20px; min-height: 70vh; }
@@ -45,23 +83,30 @@
         .page.active { display: block; }
         .page-title { text-transform: uppercase; font-size: 14px; color: #555; margin-bottom: 20px; border-bottom: 1px solid var(--border-gray); padding-bottom: 5px; font-weight: bold; }
 
-        /* Input rows mapping to HMI inputs */
+        /* Input rows */
         .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #d1d4d8; padding: 10px; border-radius: 4px; border: 1px solid #bcbfc4; }
         .input-row label { font-size: 14px; font-weight: 500; }
-        .input-row input, .input-row select { width: 90px; padding: 8px; text-align: right; border: 1px solid var(--border-gray); border-radius: 3px; }
+        .input-row input, .input-row select { width: 100px; padding: 8px; text-align: right; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 16px; }
+        .input-row select { text-align: left; width: auto; min-width: 100px; }
 
-        /* Belt Inputs Specific CSS */
+        /* Belt Inputs */
         .belt-input { width: 50px !important; padding: 5px; text-align: center; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 13px; background: #fff; }
         .belt-label { font-size: 12px; font-weight: bold; color: #333; margin-bottom: 5px; text-align: center; }
         .g2-only { display: none; } 
+        
+        .side-group { display: flex; flex-direction: column; align-items: center; flex: 1; border: 1px solid var(--border-gray); background: #d1d4d8; border-radius: 4px; padding: 10px 5px; }
+        .side-title { font-size: 12px; color: #666; text-transform: uppercase; font-weight: bold; margin-bottom: 15px; }
 
         /* Action Buttons */
         .action-bar { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-gray); padding-top: 15px; }
-        .btn { padding: 10px 20px; font-weight: bold; border: 1px solid var(--border-gray); border-radius: 4px; cursor: pointer; }
+        .btn { padding: 12px 24px; font-weight: bold; border: 1px solid var(--border-gray); border-radius: 4px; cursor: pointer; font-size: 14px; text-transform: uppercase; }
         .btn-save { background: var(--gopfert-green); color: white; }
-        .btn-load { background: #fff; }
+        
+        /* Mirror buttons */
+        .btn-mirror { background: #4a5568; color: white; padding: 8px; font-size: 10px; margin-top: 15px; display: flex; align-items: center; gap: 5px; }
+        .mirror-icon { font-size: 16px; font-weight: bold; transform: scaleX(-1); }
 
-        /* Visual HMI Overview Dashboard CSS */
+        /* Visual HMI Overview Dashboard */
         .hmi-container { width: 100%; max-width: 900px; background-color: #c9d1db; border: 2px solid #a0aab5; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: 0 auto; }
         .hmi-header { background-color: var(--gopfert-green); color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 18px; letter-spacing: 1px; }
         .belts-section { background-color: #d1d8e0; border-bottom: 2px solid #a0aab5; padding: 15px; text-align: center; }
@@ -78,19 +123,48 @@
         .value { font-size: 16px; margin-bottom: 5px; font-weight: bold; }
         .values-right { text-align: right; display: flex; flex-direction: column; }
         .icon-placeholder { width: 80px; height: 50px; border: 2px dashed #888; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
+
+        /* MOBILE RESPONSIVE CSS */
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .header { flex-direction: column; gap: 10px; padding: 10px; }
+            .header-group { margin: 0; width: 100%; }
+            .header-group input, .header-group select { font-size: 16px; padding: 10px; }
+            .app-container { flex-direction: column; gap: 10px; height: auto; }
+            .nav-panel { flex: none; width: 100%; box-sizing: border-box; padding: 5px; gap: 5px; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+            .nav-panel .nav-header-text { width: 100%; text-align: center; margin-bottom: 5px; }
+            .nav-btn { padding: 10px; font-size: 11px; text-align: center; flex: 1 1 auto; min-width: 100px; }
+            .nav-btn.overview-btn { width: 100%; margin-bottom: 5px; }
+            .nav-split { width: 100%; gap: 5px; }
+            .content-panel { width: 100%; padding: 15px 10px; box-sizing: border-box; }
+            .input-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .input-row input, .input-row select { width: 100%; text-align: left; }
+            .main-grid { grid-template-columns: 1fr; }
+            #overview .belts-section { overflow-x: auto; }
+            #overview .belts-grid { width: 800px; padding-bottom: 10px; }
+            #page1_content { display: flex; overflow-x: auto; padding-bottom: 10px; width: 100%; gap: 5px; }
+            .side-group { flex: 0 0 auto; width: 380px; }
+            .action-bar { justify-content: space-around; width: 100%; gap: 0; }
+            .btn { flex: 0 1 45%; text-align: center; padding: 15px 5px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="header-group">
-            <label>Die Number</label>
-            <input type="text" id="dieNumber" placeholder="e.g. HGD10144">
+            <label>Die Number / Name</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="dieNumber" placeholder="e.g. HGD10144" style="width: 100%;">
+                <button class="btn" onclick="window.loadSettings()" style="padding: 5px 15px; margin: 0; flex: 0 0 auto; background: #e2e4e7; border-color: var(--border-gray);">Search</button>
+            </div>
         </div>
-	<div class="header-group" id="searchUI" style="display: none; background: #e6f4ea; padding: 5px; border-radius: 4px; border: 1px solid var(--gopfert-green);">
+        
+        <div class="header-group" id="searchUI" style="display: none; background: #e6f4ea; padding: 5px; border-radius: 4px; border: 1px solid var(--gopfert-green);">
             <label style="color: var(--gopfert-green);">Select Saved Setup</label>
-            <select id="jobDropdown" onchange="window.loadSelectedJob()" style="border-color: var(--gopfert-green); font-weight: bold;"></select>
+            <select id="jobDropdown" onchange="window.loadSelectedJob()" style="border-color: var(--gopfert-green); font-weight: bold; width: 100%;"></select>
         </div>
+
         <div class="header-group">
             <label>Date Uploaded</label>
             <input type="text" id="runDate" placeholder="Auto-stamped on save" readonly>
@@ -121,6 +195,7 @@
     <div class="app-container">
         
         <div class="nav-panel">
+            <div class="nav-header-text" style="display: none;">Menu</div>
             <button class="nav-btn overview-btn active" onclick="window.showPage('overview', this)">HMI Overview</button>
             <button class="nav-btn" onclick="window.showPage('page1', this)">Position of Belts</button>
             <div class="nav-split">
@@ -185,20 +260,41 @@
 
             <div id="page1" class="page">
                 <div class="page-title">Position of Layboy Belts</div>
-                <div class="belts-section" style="border: 1px solid var(--border-gray); background: #d1d4d8; border-radius: 4px;">
-                    <div class="belts-grid">
-                        <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5L</div><input type="number" class="belt-input" id="in_5L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5L_bot"></div>
-                        <div class="belt-column"><div class="belt-label">4L</div><input type="number" class="belt-input" id="in_4L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4L_bot"></div>
-                        <div class="belt-column"><div class="belt-label">3L</div><input type="number" class="belt-input" id="in_3L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_3L_bot"></div>
-                        <div class="belt-column"><div class="belt-label">2L</div><input type="number" class="belt-input" id="in_2L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2L_bot"></div>
-                        <div class="belt-column"><div class="belt-label">1L</div><input type="number" class="belt-input" id="in_1L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1L_bot"></div>
-                        <div class="belt-column"><div class="belt-label"><br></div><div class="belt-divider dashed"></div></div>
-                        <div class="belt-column"><div class="belt-label">1R</div><input type="number" class="belt-input" id="in_1R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1R_bot"></div>
-                        <div class="belt-column"><div class="belt-label">2R</div><input type="number" class="belt-input" id="in_2R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2R_bot"></div>
-                        <div class="belt-column"><div class="belt-label">3R</div><input type="number" class="belt-input" id="in_3R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_3R_bot"></div>
-                        <div class="belt-column"><div class="belt-label">4R</div><input type="number" class="belt-input" id="in_4R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4R_bot"></div>
-                        <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5R</div><input type="number" class="belt-input" id="in_5R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5R_bot"></div>
+                
+                <div id="page1_content" style="display: flex; gap: 10px; align-items: stretch; width: 100%;">
+                    
+                    <div class="side-group">
+                        <div class="side-title">Left Side</div>
+                        <div class="belts-grid" style="gap: 5px;">
+                            <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5L</div><input type="number" class="belt-input" id="in_5L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5L_bot"></div>
+                            <div class="belt-column"><div class="belt-label">4L</div><input type="number" class="belt-input" id="in_4L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4L_bot"></div>
+                            <div class="belt-column"><div class="belt-label">3L</div><input type="number" class="belt-input" id="in_3L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_3L_bot"></div>
+                            <div class="belt-column"><div class="belt-label">2L</div><input type="number" class="belt-input" id="in_2L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2L_bot"></div>
+                            <div class="belt-column"><div class="belt-label">1L</div><input type="number" class="belt-input" id="in_1L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1L_bot"></div>
+                        </div>
+                        <button class="btn btn-mirror" onclick="window.mirrorRightToLeft()" title="Mirror values from Right side">
+                            <span class="mirror-icon">⟲</span> <span>Mirror From Opp. Side</span>
+                        </button>
                     </div>
+
+                    <div class="belt-column" style="height: 120px; align-self: center; flex: 0 0 auto;">
+                        <div class="belt-divider dashed"></div>
+                    </div>
+
+                    <div class="side-group">
+                        <div class="side-title">Right Side</div>
+                        <div class="belts-grid" style="gap: 5px;">
+                            <div class="belt-column"><div class="belt-label">1R</div><input type="number" class="belt-input" id="in_1R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1R_bot"></div>
+                            <div class="belt-column"><div class="belt-label">2R</div><input type="number" class="belt-input" id="in_2R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2R_bot"></div>
+                            <div class="belt-column"><div class="belt-label">3R</div><input type="number" class="belt-input" id="in_3R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_3R_bot"></div>
+                            <div class="belt-column"><div class="belt-label">4R</div><input type="number" class="belt-input" id="in_4R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4R_bot"></div>
+                            <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5R</div><input type="number" class="belt-input" id="in_5R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5R_bot"></div>
+                        </div>
+                        <button class="btn btn-mirror" onclick="window.mirrorLeftToRight()" title="Mirror values from Left side">
+                            <span>Mirror From Opp. Side</span><span class="mirror-icon" style="transform: scaleX(1);">⟲</span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -237,15 +333,15 @@
             </div>
             
             <div class="action-bar">
-                <button class="btn btn-load" onclick="window.loadSettings()">Load Saved Settings</button>
-                <button class="btn btn-save" onclick="window.saveSettings()">Save to Database</button>
+                <button class="btn" style="background: #e2e4e7; border-color: var(--border-gray);" onclick="window.clearForm()">Clear Fields</button>
+                <button class="btn btn-save" onclick="window.saveSettings()">Save to DB</button>
             </div>
         </div>
     </div>
 
-<script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        // We added query, where, and getDocs to enable searching
+        // Updated imports to use query and addDoc
         import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -262,44 +358,48 @@
 
         const textFields = ['boardWarp', 'machine', 'runSpeed', 'caliberArms', 'caliberBeater', 'beaterIntensity', 'rotationDirection', 'airBlastIn', 'airBlastOut', 'unitFwdBack', 'posSwivel', 'unitUpDown', 'speedOffset', 'brushTop', 'brushBottom'];
         const beltFields = ['5L_top', '5L_bot', '4L_top', '4L_bot', '3L_top', '3L_bot', '2L_top', '2L_bot', '1L_top', '1L_bot', '1R_top', '1R_bot', '2R_top', '2R_bot', '3R_top', '3R_bot', '4R_top', '4R_bot', '5R_top', '5R_bot'];
+        
+        const mirroredBelts = [
+            { left: '4L_top', right: '4R_top' }, { left: '4L_bot', right: '4R_bot' },
+            { left: '3L_top', right: '3R_top' }, { left: '3L_bot', right: '3R_bot' },
+            { left: '2L_top', right: '2R_top' }, { left: '2L_bot', right: '2R_bot' },
+            { left: '1L_top', right: '1R_top' }, { left: '1L_bot', right: '1R_bot' }
+        ];
 
         let currentSearchResults = []; // Stores the database hits
 
         window.saveSettings = async function() {
             const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
-            if (!dieNum) return alert("Please enter a Die Number before saving!");
+            if (!dieNum) return alert("Enter a Die Number!");
 
             const timestamp = new Date().toLocaleString('en-GB');
-            let data = { dieNumber: dieNum, runDate: timestamp }; // Saving the dieNumber as a searchable field
+            let data = { dieNumber: dieNum, runDate: timestamp }; // Saving dieNumber as a searchable field
             
             textFields.forEach(f => data[f] = document.getElementById(f).value);
             beltFields.forEach(b => data['in_' + b] = document.getElementById('in_' + b).value);
 
             try {
-                // addDoc creates a new historical record instead of overwriting!
+                // Creates a new historical record instead of overwriting
                 await addDoc(collection(db, "layboySettings"), data);
                 document.getElementById('runDate').value = timestamp;
                 window.updateOverview(data); 
-                alert("Settings successfully saved as a new record!");
-            } catch (e) {
-                console.error("Error saving document: ", e);
-                alert("Error saving settings. Check console.");
-            }
+                alert("Saved successfully!");
+            } catch (e) { console.error(e); alert("Error saving."); }
         };
 
         window.loadSettings = async function() {
             const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
-            if (!dieNum) return alert("Please enter a Die Number to search for!");
+            if (!dieNum) return alert("Enter a Die Number to search!");
 
-            document.getElementById('searchUI').style.display = 'none'; // Hide dropdown while searching
+            document.getElementById('searchUI').style.display = 'none';
 
             try {
-                // Search the database for ALL runs matching this die number
+                // Search the database for runs matching this die number
                 const q = query(collection(db, "layboySettings"), where("dieNumber", "==", dieNum));
                 const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
-                    return alert("No saved settings found for Die: " + dieNum);
+                    return alert("Not found.");
                 }
 
                 currentSearchResults = [];
@@ -308,26 +408,22 @@
                 if (currentSearchResults.length === 1) {
                     // Only one setup found? Just load it immediately.
                     window.populateUI(currentSearchResults[0]);
-                    alert("Settings Loaded Successfully!");
+                    alert("Loaded!");
                 } else {
                     // Multiple setups found! Show the dropdown.
                     const dropdown = document.getElementById('jobDropdown');
                     dropdown.innerHTML = '<option value="">-- Choose a setup to load --</option>';
-                    
                     currentSearchResults.forEach((job, index) => {
                         dropdown.innerHTML += `<option value="${index}">Date: ${job.runDate} | Machine: ${job.machine} | Warp: ${job.boardWarp}</option>`;
                     });
-                    
                     document.getElementById('searchUI').style.display = 'flex';
                 }
-            } catch (e) { console.error("Error searching:", e); }
+            } catch (e) { console.error(e); }
         };
 
         window.loadSelectedJob = function() {
             const index = document.getElementById('jobDropdown').value;
-            if (index !== "") {
-                window.populateUI(currentSearchResults[index]);
-            }
+            if (index !== "") window.populateUI(currentSearchResults[index]);
         };
 
         window.populateUI = function(d) {
@@ -353,6 +449,37 @@
             document.getElementById('ov_brushBottom').innerText = (d.brushBottom || '--') + ' mm';
         };
 
+        window.clearForm = function() {
+            if(confirm("Are you sure you want to clear all current settings?")) {
+                document.getElementById('dieNumber').value = '';
+                document.getElementById('runDate').value = '';
+                document.getElementById('searchUI').style.display = 'none';
+                textFields.forEach(f => { if(document.getElementById(f) && document.getElementById(f).tagName !== 'SELECT') document.getElementById(f).value = ''; });
+                beltFields.forEach(b => { if(document.getElementById('in_' + b)) document.getElementById('in_' + b).value = ''; });
+                window.updateOverview({});
+            }
+        };
+
+        window.mirrorLeftToRight = function() {
+            const machineSelected = document.getElementById('machine').value;
+            let pairs = [...mirroredBelts];
+            if (machineSelected === 'G2') pairs.push({ left: '5L_top', right: '5R_top' }, { left: '5L_bot', right: '5R_bot' });
+            pairs.forEach(pair => {
+                const leftValue = document.getElementById('in_' + pair.left).value;
+                if (leftValue !== "") document.getElementById('in_' + pair.right).value = Math.abs(parseFloat(leftValue));
+            });
+        };
+
+        window.mirrorRightToLeft = function() {
+            const machineSelected = document.getElementById('machine').value;
+            let pairs = [...mirroredBelts];
+            if (machineSelected === 'G2') pairs.push({ left: '5L_top', right: '5R_top' }, { left: '5L_bot', right: '5R_bot' });
+            pairs.forEach(pair => {
+                const rightValue = document.getElementById('in_' + pair.right).value;
+                if (rightValue !== "") document.getElementById('in_' + pair.left).value = Math.abs(parseFloat(rightValue)) * -1;
+            });
+        };
+
         window.showPage = function(pageId, btnElement) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -364,6 +491,14 @@
             const machineSelected = document.getElementById('machine').value;
             document.querySelectorAll('.g2-only').forEach(el => { el.style.display = (machineSelected === 'G2') ? 'flex' : 'none'; });
         };
+
+        // Allow pressing Enter in the Die Number box to trigger search
+        document.getElementById('dieNumber').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                window.loadSettings();
+            }
+        });
 
         window.toggleG2Belts();
     </script>
