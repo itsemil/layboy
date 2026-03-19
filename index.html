@@ -11,6 +11,8 @@
             --panel-gray: #c5c8cc;
             --border-gray: #9ba0a6;
             --text-dark: #333;
+            --highlight-blue: #0056b3;
+            --highlight-bg: #e6f0ff;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -56,6 +58,7 @@
             border-radius: 3px;
             width: 100%;
             box-sizing: border-box;
+            transition: all 0.2s;
         }
         .header-group input[readonly] {
             background: #e2e4e7;
@@ -86,14 +89,22 @@
         /* Input rows */
         .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #d1d4d8; padding: 10px; border-radius: 4px; border: 1px solid #bcbfc4; }
         .input-row label { font-size: 14px; font-weight: 500; }
-        .input-row input, .input-row select { width: 100px; padding: 8px; text-align: right; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 16px; }
+        .input-row input, .input-row select { width: 100px; padding: 8px; text-align: right; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 16px; transition: all 0.2s; }
         .input-row select { text-align: left; width: auto; min-width: 100px; }
 
         /* Belt Inputs */
-        .belt-input { width: 50px !important; padding: 5px; text-align: center; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 13px; background: #fff; }
+        .belt-input { width: 50px !important; padding: 5px; text-align: center; border: 1px solid var(--border-gray); border-radius: 3px; font-size: 13px; background: #fff; transition: all 0.2s; }
         .belt-label { font-size: 12px; font-weight: bold; color: #333; margin-bottom: 5px; text-align: center; }
         .g2-only { display: none; } 
         
+        /* Highlight CSS for changed inputs */
+        .changed-input {
+            color: var(--highlight-blue) !important;
+            border: 2px solid var(--highlight-blue) !important;
+            background-color: var(--highlight-bg) !important;
+            font-weight: bold;
+        }
+
         .side-group { display: flex; flex-direction: column; align-items: center; flex: 1; border: 1px solid var(--border-gray); background: #d1d4d8; border-radius: 4px; padding: 10px 5px; }
         .side-title { font-size: 12px; color: #666; text-transform: uppercase; font-weight: bold; margin-bottom: 15px; }
 
@@ -103,8 +114,8 @@
         .btn-save { background: var(--gopfert-green); color: white; }
         
         /* Mirror buttons */
-        .btn-mirror { background: #4a5568; color: white; padding: 8px; font-size: 10px; margin-top: 15px; display: flex; align-items: center; gap: 5px; }
-        .mirror-icon { font-size: 16px; font-weight: bold; transform: scaleX(-1); }
+        .btn-mirror { background: #4a5568; color: white; padding: 8px; font-size: 10px; margin-top: 15px; display: flex; align-items: center; gap: 5px; border: none; border-radius: 3px; cursor: pointer;}
+        .mirror-icon { font-size: 16px; font-weight: bold; }
 
         /* Visual HMI Overview Dashboard */
         .hmi-container { width: 100%; max-width: 900px; background-color: #c9d1db; border: 2px solid #a0aab5; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: 0 auto; }
@@ -122,6 +133,18 @@
         .card-title { font-size: 12px; color: #555; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
         .value { font-size: 16px; margin-bottom: 5px; font-weight: bold; }
         .values-right { text-align: right; display: flex; flex-direction: column; }
+        
+        /* THE ACTUAL IMAGE STYLING */
+        .hmi-icon {
+            width: 80px;
+            height: 50px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: #fff;
+            padding: 2px;
+            border: 1px solid #9ba0a6;
+        }
+        
         .icon-placeholder { width: 80px; height: 50px; border: 2px dashed #888; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
 
         /* MOBILE RESPONSIVE CSS */
@@ -235,19 +258,20 @@
                     <div class="main-grid">
                         <div class="card" onclick="window.showPage('page2', document.querySelector('.nav-btn:nth-child(3) .nav-btn:first-child'))">
                             <div class="card-content"><div class="card-title">Caliber</div><div class="value" id="ov_caliberArms">-- mm</div><div class="value" id="ov_caliberBeater">-- mm</div></div>
-                            <div class="icon-placeholder">Icon</div>
+                            <img src="caliber.jpg" class="hmi-icon" alt="Caliber Icon" onerror="this.style.display='none'">
                         </div>
                         <div class="card" onclick="window.showPage('page3', document.querySelector('.nav-btn:nth-child(3) .nav-btn:last-child'))">
-                            <div class="card-content"><div class="card-title">Waste Disposal</div><div class="icon-placeholder" style="width: 50px;">Icon</div></div>
+                            <div class="card-content"><div class="card-title">Waste Disposal</div>
+                            <img src="waste.jpg" class="hmi-icon" alt="Waste Icon" onerror="this.style.display='none'"></div>
                             <div class="values-right"><div class="value" id="ov_beaterIntensity">--</div><div class="value" id="ov_airBlastIn">--</div><div class="value" id="ov_airBlastOut">--</div></div>
                         </div>
                         <div class="card" onclick="window.showPage('page4', document.querySelector('.nav-btn:nth-child(4) .nav-btn:first-child'))">
                             <div class="card-content"><div class="card-title">Undercarriage</div><div class="value" id="ov_unitFwdBack">-- mm</div><div class="value" id="ov_posSwivel">-- mm</div><div class="value" id="ov_unitUpDown">-- mm</div></div>
-                            <div class="icon-placeholder">Icon</div>
+                            <img src="undercarriage.jpg" class="hmi-icon" alt="Undercarriage Icon" onerror="this.style.display='none'">
                         </div>
                         <div class="card" onclick="window.showPage('page5', document.querySelector('.nav-btn:nth-child(4) .nav-btn:last-child'))">
                             <div class="card-content"><div class="card-title">Speed</div><div class="value" id="ov_speedOffset">-- %</div></div>
-                            <div class="icon-placeholder">Icon</div>
+                            <img src="speed.jpg" class="hmi-icon" alt="Speed Icon" onerror="this.style.display='none'">
                         </div>
                         <div class="card" onclick="window.showPage('page6', document.querySelector('.nav-btn:nth-child(5)'))">
                             <div class="card-content"><div class="card-title">Brush</div><div class="value" id="ov_brushTop">-- mm</div><div class="value" id="ov_brushBottom">-- mm</div></div>
@@ -272,8 +296,8 @@
                             <div class="belt-column"><div class="belt-label">2L</div><input type="number" class="belt-input" id="in_2L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_2L_bot"></div>
                             <div class="belt-column"><div class="belt-label">1L</div><input type="number" class="belt-input" id="in_1L_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_1L_bot"></div>
                         </div>
-                        <button class="btn btn-mirror" onclick="window.mirrorRightToLeft()" title="Mirror values from Right side">
-                            <span class="mirror-icon">⟲</span> <span>Mirror From Opp. Side</span>
+                        <button class="btn btn-mirror" onclick="window.mirrorLeftToRight()" title="Push these values to the Right side">
+                            <span>Mirror to Right Side</span> <span class="mirror-icon" style="transform: scaleX(1);">⟳</span>
                         </button>
                     </div>
 
@@ -290,8 +314,8 @@
                             <div class="belt-column"><div class="belt-label">4R</div><input type="number" class="belt-input" id="in_4R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_4R_bot"></div>
                             <div class="belt-column g2-only"><div class="belt-label" style="color:var(--gopfert-green);">5R</div><input type="number" class="belt-input" id="in_5R_top"><div class="belt-divider"></div><input type="number" class="belt-input" id="in_5R_bot"></div>
                         </div>
-                        <button class="btn btn-mirror" onclick="window.mirrorLeftToRight()" title="Mirror values from Left side">
-                            <span>Mirror From Opp. Side</span><span class="mirror-icon" style="transform: scaleX(1);">⟲</span>
+                        <button class="btn btn-mirror" onclick="window.mirrorRightToLeft()" title="Push these values to the Left side">
+                            <span class="mirror-icon" style="transform: scaleX(-1);">⟲</span> <span>Mirror to Left Side</span>
                         </button>
                     </div>
 
@@ -341,7 +365,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        // Updated imports to use query and addDoc
         import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -366,22 +389,24 @@
             { left: '1L_top', right: '1R_top' }, { left: '1L_bot', right: '1R_bot' }
         ];
 
-        let currentSearchResults = []; // Stores the database hits
+        let currentSearchResults = []; 
+        window.originalData = {}; 
 
         window.saveSettings = async function() {
             const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
             if (!dieNum) return alert("Enter a Die Number!");
 
             const timestamp = new Date().toLocaleString('en-GB');
-            let data = { dieNumber: dieNum, runDate: timestamp }; // Saving dieNumber as a searchable field
+            let data = { dieNumber: dieNum, runDate: timestamp }; 
             
             textFields.forEach(f => data[f] = document.getElementById(f).value);
             beltFields.forEach(b => data['in_' + b] = document.getElementById('in_' + b).value);
 
             try {
-                // Creates a new historical record instead of overwriting
                 await addDoc(collection(db, "layboySettings"), data);
                 document.getElementById('runDate').value = timestamp;
+                window.originalData = { ...data };
+                document.querySelectorAll('.changed-input').forEach(el => el.classList.remove('changed-input'));
                 window.updateOverview(data); 
                 alert("Saved successfully!");
             } catch (e) { console.error(e); alert("Error saving."); }
@@ -390,27 +415,21 @@
         window.loadSettings = async function() {
             const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
             if (!dieNum) return alert("Enter a Die Number to search!");
-
             document.getElementById('searchUI').style.display = 'none';
 
             try {
-                // Search the database for runs matching this die number
                 const q = query(collection(db, "layboySettings"), where("dieNumber", "==", dieNum));
                 const querySnapshot = await getDocs(q);
 
-                if (querySnapshot.empty) {
-                    return alert("Not found.");
-                }
+                if (querySnapshot.empty) { return alert("Not found."); }
 
                 currentSearchResults = [];
                 querySnapshot.forEach((doc) => { currentSearchResults.push(doc.data()); });
 
                 if (currentSearchResults.length === 1) {
-                    // Only one setup found? Just load it immediately.
                     window.populateUI(currentSearchResults[0]);
                     alert("Loaded!");
                 } else {
-                    // Multiple setups found! Show the dropdown.
                     const dropdown = document.getElementById('jobDropdown');
                     dropdown.innerHTML = '<option value="">-- Choose a setup to load --</option>';
                     currentSearchResults.forEach((job, index) => {
@@ -427,6 +446,8 @@
         };
 
         window.populateUI = function(d) {
+            window.originalData = { ...d }; 
+            document.querySelectorAll('.changed-input').forEach(el => el.classList.remove('changed-input')); 
             document.getElementById('runDate').value = d.runDate || '';
             textFields.forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = d[f] || ''; });
             beltFields.forEach(b => { if(document.getElementById('in_' + b)) document.getElementById('in_' + b).value = d['in_' + b] || ''; });
@@ -451,6 +472,8 @@
 
         window.clearForm = function() {
             if(confirm("Are you sure you want to clear all current settings?")) {
+                window.originalData = {}; 
+                document.querySelectorAll('.changed-input').forEach(el => el.classList.remove('changed-input'));
                 document.getElementById('dieNumber').value = '';
                 document.getElementById('runDate').value = '';
                 document.getElementById('searchUI').style.display = 'none';
@@ -460,13 +483,26 @@
             }
         };
 
+        window.verifyChange = function(elementId, dataKey) {
+            const el = document.getElementById(elementId);
+            if (!el || !window.originalData || Object.keys(window.originalData).length === 0) return;
+            const origVal = (window.originalData[dataKey] || '').toString();
+            const newVal = el.value.toString();
+            if (origVal !== newVal) el.classList.add('changed-input');
+            else el.classList.remove('changed-input');
+        };
+
         window.mirrorLeftToRight = function() {
             const machineSelected = document.getElementById('machine').value;
             let pairs = [...mirroredBelts];
             if (machineSelected === 'G2') pairs.push({ left: '5L_top', right: '5R_top' }, { left: '5L_bot', right: '5R_bot' });
             pairs.forEach(pair => {
-                const leftValue = document.getElementById('in_' + pair.left).value;
-                if (leftValue !== "") document.getElementById('in_' + pair.right).value = Math.abs(parseFloat(leftValue));
+                const leftEl = document.getElementById('in_' + pair.left);
+                const rightEl = document.getElementById('in_' + pair.right);
+                if (leftEl.value !== "") {
+                    rightEl.value = Math.abs(parseFloat(leftEl.value));
+                    window.verifyChange(rightEl.id, rightEl.id); 
+                }
             });
         };
 
@@ -475,8 +511,12 @@
             let pairs = [...mirroredBelts];
             if (machineSelected === 'G2') pairs.push({ left: '5L_top', right: '5R_top' }, { left: '5L_bot', right: '5R_bot' });
             pairs.forEach(pair => {
-                const rightValue = document.getElementById('in_' + pair.right).value;
-                if (rightValue !== "") document.getElementById('in_' + pair.left).value = Math.abs(parseFloat(rightValue)) * -1;
+                const rightEl = document.getElementById('in_' + pair.right);
+                const leftEl = document.getElementById('in_' + pair.left);
+                if (rightEl.value !== "") {
+                    leftEl.value = Math.abs(parseFloat(rightEl.value)) * -1;
+                    window.verifyChange(leftEl.id, leftEl.id); 
+                }
             });
         };
 
@@ -490,9 +530,21 @@
         window.toggleG2Belts = function() {
             const machineSelected = document.getElementById('machine').value;
             document.querySelectorAll('.g2-only').forEach(el => { el.style.display = (machineSelected === 'G2') ? 'flex' : 'none'; });
+            window.verifyChange('machine', 'machine');
         };
 
-        // Allow pressing Enter in the Die Number box to trigger search
+        window.bindChangeListeners = function() {
+            textFields.forEach(f => {
+                const el = document.getElementById(f);
+                if(el) el.addEventListener('input', () => window.verifyChange(f, f));
+            });
+            beltFields.forEach(b => {
+                const elId = 'in_' + b;
+                const el = document.getElementById(elId);
+                if(el) el.addEventListener('input', () => window.verifyChange(elId, elId));
+            });
+        };
+
         document.getElementById('dieNumber').addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -501,6 +553,7 @@
         });
 
         window.toggleG2Belts();
+        window.bindChangeListeners();
     </script>
 </body>
 </html>
