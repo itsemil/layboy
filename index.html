@@ -33,15 +33,15 @@
             margin-bottom: 20px;
             justify-content: space-between;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap; /* Allows wrapping if it gets too tight */
+            gap: 10px;
         }
         .header-group {
             display: flex;
             flex-direction: column;
             flex: 1;
-            margin: 0 5px;
+            min-width: 120px; /* Prevents them from getting too squished */
         }
-        .header-group:first-child { margin-left: 0; }
-        .header-group:last-child { margin-right: 0; }
         
         .header-group label {
             font-size: 11px;
@@ -139,14 +139,8 @@
             width: 80px;
             height: 50px;
             object-fit: contain;
-            
-            /* 1. Bleach the artifacts: removes color, boosts contrast, and brightens grey pixels to pure white */
             filter: grayscale(100%) contrast(300%) brightness(1.2); 
-            
-            /* 2. Blend it: pure white becomes 100% transparent */
             mix-blend-mode: multiply; 
-            
-            /* Strip all the box styling */
             border: none;
             background: transparent;
             padding: 0;
@@ -183,22 +177,28 @@
 
     <div class="header">
         <div class="header-group">
-            <label>Die Number / Name</label>
+            <label>Die Number</label>
             <div style="display: flex; gap: 5px;">
                 <input type="text" id="dieNumber" placeholder="e.g. HGD10144" style="width: 100%;">
                 <button class="btn" onclick="window.loadSettings()" style="padding: 5px 15px; margin: 0; flex: 0 0 auto; background: #e2e4e7; border-color: var(--border-gray);">Search</button>
             </div>
         </div>
         
-        <div class="header-group" id="searchUI" style="display: none; background: #e6f4ea; padding: 5px; border-radius: 4px; border: 1px solid var(--gopfert-green);">
+        <div class="header-group" id="searchUI" style="display: none; background: #e6f4ea; padding: 5px; border-radius: 4px; border: 1px solid var(--gopfert-green); width: 100%;">
             <label style="color: var(--gopfert-green);">Select Saved Setup</label>
             <select id="jobDropdown" onchange="window.loadSelectedJob()" style="border-color: var(--gopfert-green); font-weight: bold; width: 100%;"></select>
         </div>
 
         <div class="header-group">
-            <label>Date Uploaded</label>
-            <input type="text" id="runDate" placeholder="Auto-stamped on save" readonly>
+            <label>Date</label>
+            <input type="text" id="runDate" placeholder="Auto-stamped" readonly>
         </div>
+        
+        <div class="header-group">
+            <label>Operator</label>
+            <input type="text" id="operatorName" placeholder="Your Name">
+        </div>
+
         <div class="header-group">
             <label>Board Warp</label>
             <select id="boardWarp">
@@ -217,7 +217,7 @@
             </select>
         </div>
         <div class="header-group">
-            <label>Running Speed</label>
+            <label>Speed</label>
             <input type="number" id="runSpeed" placeholder="e.g. 6000">
         </div>
     </div>
@@ -268,8 +268,7 @@
                             <img src="caliber.jpg" class="hmi-icon" alt="Caliber Icon" onerror="this.style.display='none'">
                         </div>
                         <div class="card" onclick="window.showPage('page3', document.querySelector('.nav-btn:nth-child(3) .nav-btn:last-child'))">
-                            <div class="card-content"><div class="card-title">Waste Disposal</div>
-                            <img src="waste.jpg" class="hmi-icon" alt="Waste Icon" onerror="this.style.display='none'"></div>
+                            <div class="card-content"><div class="card-title">Waste Disposal</div><img src="waste.jpg" class="hmi-icon" alt="Waste Icon" onerror="this.style.display='none'"></div>
                             <div class="values-right"><div class="value" id="ov_beaterIntensity">--</div><div class="value" id="ov_airBlastIn">--</div><div class="value" id="ov_airBlastOut">--</div></div>
                         </div>
                         <div class="card" onclick="window.showPage('page4', document.querySelector('.nav-btn:nth-child(4) .nav-btn:first-child'))">
@@ -401,10 +400,18 @@
 
         window.saveSettings = async function() {
             const dieNum = document.getElementById('dieNumber').value.trim().toUpperCase();
-            if (!dieNum) return alert("Enter a Die Number!");
+            if (!dieNum) return alert("Enter a Die Number before saving!");
+            
+            // Validate Operator Name
+            const opName = document.getElementById('operatorName').value.trim();
+            if (!opName) return alert("Please enter your name (Operator) before saving!");
 
             const timestamp = new Date().toLocaleString('en-GB');
-            let data = { dieNumber: dieNum, runDate: timestamp }; 
+            let data = { 
+                dieNumber: dieNum, 
+                runDate: timestamp,
+                operatorName: opName
+            }; 
             
             textFields.forEach(f => data[f] = document.getElementById(f).value);
             beltFields.forEach(b => data['in_' + b] = document.getElementById('in_' + b).value);
@@ -428,7 +435,7 @@
                 const q = query(collection(db, "layboySettings"), where("dieNumber", "==", dieNum));
                 const querySnapshot = await getDocs(q);
 
-                if (querySnapshot.empty) { return alert("Not found."); }
+                if (querySnapshot.empty) { return alert("No setups found for this Die."); }
 
                 currentSearchResults = [];
                 querySnapshot.forEach((doc) => { currentSearchResults.push(doc.data()); });
@@ -440,7 +447,9 @@
                     const dropdown = document.getElementById('jobDropdown');
                     dropdown.innerHTML = '<option value="">-- Choose a setup to load --</option>';
                     currentSearchResults.forEach((job, index) => {
-                        dropdown.innerHTML += `<option value="${index}">Date: ${job.runDate} | Machine: ${job.machine} | Warp: ${job.boardWarp}</option>`;
+                        // Display the Operator Name in the dropdown, default to Legacy for old imports
+                        const opName = job.operatorName || 'Legacy';
+                        dropdown.innerHTML += `<option value="${index}">Date: ${job.runDate} | By: ${opName} | Mach: ${job.machine} | Warp: ${job.boardWarp}</option>`;
                     });
                     document.getElementById('searchUI').style.display = 'flex';
                 }
@@ -455,7 +464,10 @@
         window.populateUI = function(d) {
             window.originalData = { ...d }; 
             document.querySelectorAll('.changed-input').forEach(el => el.classList.remove('changed-input')); 
+            
             document.getElementById('runDate').value = d.runDate || '';
+            document.getElementById('operatorName').value = d.operatorName || ''; // Load the operator name
+            
             textFields.forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = d[f] || ''; });
             beltFields.forEach(b => { if(document.getElementById('in_' + b)) document.getElementById('in_' + b).value = d['in_' + b] || ''; });
             window.toggleG2Belts();
@@ -478,12 +490,15 @@
         };
 
         window.clearForm = function() {
-            if(confirm("Are you sure you want to clear all current settings?")) {
+            if(confirm("Are you sure you want to clear the machine settings? (Your Operator name will stay)")) {
                 window.originalData = {}; 
                 document.querySelectorAll('.changed-input').forEach(el => el.classList.remove('changed-input'));
+                
                 document.getElementById('dieNumber').value = '';
                 document.getElementById('runDate').value = '';
+                // Note: We intentionally do NOT clear the operatorName here!
                 document.getElementById('searchUI').style.display = 'none';
+                
                 textFields.forEach(f => { if(document.getElementById(f) && document.getElementById(f).tagName !== 'SELECT') document.getElementById(f).value = ''; });
                 beltFields.forEach(b => { if(document.getElementById('in_' + b)) document.getElementById('in_' + b).value = ''; });
                 window.updateOverview({});
